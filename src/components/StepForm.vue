@@ -85,16 +85,16 @@
         >Next</Button
       >
       <Button
-        :click="handleSubmit"
-        v-if="formActive === steps.length"
-        className="prev"
-        >Send</Button
-      >
-      <Button
         :click="handleReset"
         v-if="formActive === steps.length"
         className="reset"
         >Reset</Button
+      >
+      <Button
+        :click="handleSubmit"
+        v-if="formActive === steps.length"
+        className="prev"
+        >Send</Button
       >
     </div>
   </div>

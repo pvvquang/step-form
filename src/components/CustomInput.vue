@@ -56,7 +56,7 @@ export default {
     },
 
     handleValid(value = "") {
-      if (!value) {
+      if (!value || !value.trim()) {
         this.errorMessage = `The field is required!`;
       } else {
         switch (this.type) {
