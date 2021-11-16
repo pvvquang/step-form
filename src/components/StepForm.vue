@@ -17,12 +17,22 @@
     </div>
     <div class="form-step__wrap">
       <div class="form-step__group">
-        <custom-input type="text" id="name">Full Name</custom-input>
-        <custom-input type="email" id="email">Your Email</custom-input>
+        <custom-input type="text" id="name" @input="user.name = $event"
+          >Full Name</custom-input
+        >
+        <custom-input type="email" id="email" @input="user.email = $event"
+          >Your Email</custom-input
+        >
       </div>
       <div class="form-step__group" v-if="steps[0].validated">
-        <custom-input type="text" id="company">Your Company Name</custom-input>
-        <custom-input type="text" :typeCustom="number" id="employees"
+        <custom-input type="text" id="company" @input="user.company = $event"
+          >Your Company Name</custom-input
+        >
+        <custom-input
+          type="text"
+          :typeCustom="number"
+          id="employees"
+          @input="user.employee = $event"
           >Number of Employees</custom-input
         >
       </div>
@@ -53,6 +63,14 @@ export default {
         { step: 3, validated: false, name: "Finishing Up" },
       ],
       formActive: 1,
+      user: {
+        name: "",
+        email: "",
+        company: "",
+        employee: "",
+        selected: "",
+        acceptTerm: false,
+      },
     };
   },
   components: {
@@ -63,7 +81,12 @@ export default {
   },
   methods: {
     handlePrev() {},
-    handleNext() {},
+    handleNext() {
+      switch (this.formActive) {
+        case 1:
+          break;
+      }
+    },
     handleReset() {},
   },
 };
