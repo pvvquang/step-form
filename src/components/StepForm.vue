@@ -16,31 +16,79 @@
       </div>
     </div>
     <div class="form-step__wrap">
-      <div class="form-step__group">
-        <custom-input type="text" id="name" @input="user.name = $event"
+      <div class="form-step__group" v-if="formActive === 1">
+        <custom-input
+          type="text"
+          id="name"
+          :value="user.name"
+          @input="handleInputChange"
           >Full Name</custom-input
         >
-        <custom-input type="email" id="email" @input="user.email = $event"
+        <custom-input
+          type="email"
+          id="email"
+          :value="user.email"
+          @input="handleInputChange"
           >Your Email</custom-input
         >
       </div>
-      <div class="form-step__group" v-if="steps[0].validated">
-        <custom-input type="text" id="company" @input="user.company = $event"
+      <div class="form-step__group" v-if="formActive === 2">
+        <custom-input
+          type="text"
+          id="company"
+          :value="user.company"
+          @input="handleInputChange"
           >Your Company Name</custom-input
         >
         <custom-input
           type="text"
-          :typeCustom="number"
+          typeCustom="number"
           id="employees"
-          @input="user.employee = $event"
+          :value="user.employees"
+          @input="handleInputChange"
           >Number of Employees</custom-input
         >
       </div>
+      <div class="form-step__group" v-if="formActive === 3">
+        <Select :selected="selectedAbout">
+          From Where did you hear about us
+          <Option
+            slot="option"
+            v-for="(item, index) in listSelect"
+            :key="index"
+            :item="item"
+            @selectClick="handleSelected"
+          ></Option>
+        </Select>
+        <div class="check-term">
+          <input type="checkbox" id="check-term" @input="handleCheckTerm" />
+          <label for="check-term">I accept terms & conditions</label>
+        </div>
+      </div>
     </div>
     <div class="form-step__btns">
-      <Button :click="handlePrev" className="prev">Previous</Button>
-      <Button :click="handleNext" className="next">Next</Button>
-      <Button :click="handleReset" v-if="formAction === 3" className="reset"
+      <Button
+        :click="handlePrev"
+        className="prev"
+        v-show="formActive !== steps.length"
+        >Previous</Button
+      >
+      <Button
+        :click="handleNext"
+        className="next"
+        v-show="formActive !== steps.length"
+        >Next</Button
+      >
+      <Button
+        :click="handleSubmit"
+        v-if="formActive === steps.length"
+        className="prev"
+        >Send</Button
+      >
+      <Button
+        :click="handleReset"
+        v-if="formActive === steps.length"
+        className="reset"
         >Reset</Button
       >
     </div>
@@ -52,6 +100,8 @@ import ProgressBar from "./ProgressBar.vue";
 import FormTitle from "./FormTitle.vue";
 import CustomInput from "./CustomInput.vue";
 import Button from "./Button.vue";
+import Select from "./Select.vue";
+import Option from "./Option.vue";
 
 export default {
   name: "StepForm",
@@ -63,14 +113,17 @@ export default {
         { step: 3, validated: false, name: "Finishing Up" },
       ],
       formActive: 1,
+      errorMessage: null,
       user: {
         name: "",
         email: "",
         company: "",
-        employee: "",
+        employees: "",
         selected: "",
         acceptTerm: false,
       },
+      listSelect: ["Friend", "Facebook", "Website"],
+      selectedAbout: "",
     };
   },
   components: {
@@ -78,16 +131,91 @@ export default {
     ProgressBar,
     CustomInput,
     Button,
+    Select,
+    Option,
   },
   methods: {
-    handlePrev() {},
+    handlePrev() {
+      if (this.formActive > 1) {
+        this.steps[this.formActive - 1].validated = false;
+        this.formActive = this.formActive - 1;
+      }
+    },
     handleNext() {
+      console.log({ isError: this.errorMessage, userData: this.user });
+      if (this.formActive >= this.steps.length) {
+        return;
+      }
+
       switch (this.formActive) {
         case 1:
+          if (this.user.name && this.user.email && !this.errorMessage) {
+            this.steps[this.formActive - 1].validated = true;
+            this.formActive = this.formActive + 1;
+          }
+          break;
+        case 2:
+          if (this.user.company && this.user.employees && !this.errorMessage) {
+            this.steps[this.formActive - 1].validated = true;
+            this.formActive = this.formActive + 1;
+          }
           break;
       }
     },
-    handleReset() {},
+    handleReset() {
+      this.user.acceptTerm = false;
+      this.user.name =
+        this.user.email =
+        this.user.company =
+        this.user.employees =
+        this.user.selected =
+          "";
+      this.steps.forEach((step) => (step.validated = false));
+      this.formActive = 1;
+      this.selected = "";
+    },
+    handleSubmit() {
+      console.log(this.user);
+    },
+    handleInputChange(event) {
+      switch (event.name) {
+        case "name":
+          this.user.name = event.value;
+          this.errorMessage = event.errorMessage;
+          break;
+        case "email":
+          this.user.email = event.value;
+          this.errorMessage = event.errorMessage;
+          break;
+        case "company":
+          this.user.company = event.value;
+          this.errorMessage = event.errorMessage;
+          break;
+        case "employees":
+          this.user.employees = event.value;
+          this.errorMessage = event.errorMessage;
+          break;
+      }
+    },
+    handleSelected(value) {
+      this.selectedAbout = value;
+      this.user.selected = value;
+    },
+    handleCheckTerm(event) {
+      this.user.acceptTerm = event.target.checked;
+      if (
+        this.user.acceptTerm &&
+        this.user.name &&
+        this.user.email &&
+        this.user.company &&
+        this.user.employees &&
+        this.user.selected
+      ) {
+        this.steps[this.formActive - 1].validated = true;
+      } else {
+        this.steps[this.formActive - 1].validated = false;
+      }
+    },
   },
 };
 </script>
@@ -114,6 +242,17 @@ export default {
 
   &__btns {
     margin-top: 50px;
+  }
+
+  .check-term {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    padding-top: 20px;
+
+    label {
+      margin-left: 6px;
+    }
   }
 }
 </style>

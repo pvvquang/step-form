@@ -29,6 +29,7 @@ export default {
     height: 100%;
     background-color: #437fe8;
     border-radius: 12px;
+    transition: width 0.5s ease;
   }
 }
 </style>

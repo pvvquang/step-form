@@ -4,8 +4,10 @@
     <input
       :type="type"
       :id="id"
-      @change="handleInput"
-      @blur="handleValid"
+      :name="id"
+      :value="inputValue"
+      @input="handleInputChange"
+      @blur="handleInputChange"
       :placeholder="placeholder"
       :class="{ error: isError }"
     />
@@ -15,10 +17,11 @@
 
 <script>
 export default {
-  props: ["type", "id", "typeCustom", "placeholder", "isValid"],
+  props: ["type", "id", "typeCustom", "placeholder", "isValid", "value"],
   data() {
     return {
       errorMessage: "",
+      inputValue: this.value,
     };
   },
   computed: {
@@ -26,18 +29,18 @@ export default {
       return this.errorMessage.length !== 0 ? true : false;
     },
   },
-  methods: {
-    handleInput(event) {
-      if (event.target.value) {
-        this.errorMessage = "";
-        this.$emit("input", event.target.value);
-      }
+  watch: {
+    value(newVal) {
+      this.inputValue = newVal;
     },
-    handleValid(event) {
+  },
+  methods: {
+    handleInputChange(event) {
+      // Validated
       const value = event.target.value;
+
       if (!value) {
-        const textType = this.type.charAt(0).toUpperCase() + this.type.slice(1);
-        this.errorMessage = `${textType} is required!`;
+        this.errorMessage = `The field is required!`;
       } else {
         switch (this.type) {
           case "email":
@@ -46,18 +49,31 @@ export default {
                 /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
               if (!regex.test(value)) {
                 this.errorMessage = "The field must be email!";
+              } else {
+                this.errorMessage = "";
               }
             }
             break;
           case "text":
             if (this.typeCustom === "number") {
               if (Number(value)) {
+                this.errorMessage = "";
+              } else {
                 this.errorMessage = "Should be a valid value!";
               }
+            } else {
+              this.errorMessage = "";
             }
             break;
         }
       }
+
+      // emit data
+      this.$emit("input", {
+        value: event.target.value,
+        errorMessage: !!this.errorMessage,
+        name: this.id,
+      });
     },
   },
 };
