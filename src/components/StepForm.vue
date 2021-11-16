@@ -22,6 +22,7 @@
           id="name"
           :value="user.name"
           @input="handleInputChange"
+          :isValid="isValid"
           >Full Name</custom-input
         >
         <custom-input
@@ -29,6 +30,7 @@
           id="email"
           :value="user.email"
           @input="handleInputChange"
+          :isValid="isValid"
           >Your Email</custom-input
         >
       </div>
@@ -38,6 +40,7 @@
           id="company"
           :value="user.company"
           @input="handleInputChange"
+          :isValid="isValid"
           >Your Company Name</custom-input
         >
         <custom-input
@@ -114,6 +117,7 @@ export default {
       ],
       formActive: 1,
       errorMessage: null,
+      isValid: null,
       user: {
         name: "",
         email: "",
@@ -141,17 +145,23 @@ export default {
         this.formActive = this.formActive - 1;
       }
     },
+
     handleNext() {
-      console.log({ isError: this.errorMessage, userData: this.user });
       if (this.formActive >= this.steps.length) {
         return;
       }
 
       switch (this.formActive) {
         case 1:
-          if (this.user.name && this.user.email && !this.errorMessage) {
-            this.steps[this.formActive - 1].validated = true;
-            this.formActive = this.formActive + 1;
+          if (this.user.name && this.user.email) {
+            if (!this.errorMessage) {
+              this.steps[this.formActive - 1].validated = true;
+              this.formActive = this.formActive + 1;
+              this.isValid = true;
+              console.log("isvalid:", this.isValid);
+            }
+          } else {
+            this.isValid = false;
           }
           break;
         case 2:
@@ -162,6 +172,7 @@ export default {
           break;
       }
     },
+
     handleReset() {
       this.user.acceptTerm = false;
       this.user.name =
@@ -174,9 +185,11 @@ export default {
       this.formActive = 1;
       this.selected = "";
     },
+
     handleSubmit() {
       console.log(this.user);
     },
+
     handleInputChange(event) {
       switch (event.name) {
         case "name":
@@ -197,10 +210,12 @@ export default {
           break;
       }
     },
+
     handleSelected(value) {
       this.selectedAbout = value;
       this.user.selected = value;
     },
+
     handleCheckTerm(event) {
       this.user.acceptTerm = event.target.checked;
       if (

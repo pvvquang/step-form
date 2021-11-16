@@ -5,6 +5,7 @@
       <span class="select__title" @click="showOption = !showOption">{{
         !selected ? "-- Choose anwser --" : selected
       }}</span>
+      <p class="select__error"></p>
       <transition name="fade">
         <div class="select__options" v-if="showOption">
           <slot name="option"></slot>
@@ -19,6 +20,7 @@ export default {
   data() {
     return {
       showOption: false,
+      errorMessage: "",
     };
   },
   props: ["selected"],

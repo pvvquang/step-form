@@ -28,17 +28,40 @@ export default {
     isError() {
       return this.errorMessage.length !== 0 ? true : false;
     },
+    isValided() {
+      return this.isValid;
+    },
   },
   watch: {
     value(newVal) {
       this.inputValue = newVal;
     },
+    isValid() {
+      console.log("watch", this.isValided, this.isValid);
+      if (!this.isValided) {
+        if (!this.inputValue) {
+          this.handleValid();
+        }
+      }
+    },
   },
   methods: {
     handleInputChange(event) {
+      console.log(this.isValid);
       // Validated
       const value = event.target.value;
 
+      this.handleValid(value);
+
+      // emit data
+      this.$emit("input", {
+        value: event.target.value,
+        errorMessage: this.errorMessage,
+        name: this.id,
+      });
+    },
+
+    handleValid(value = "") {
       if (!value) {
         this.errorMessage = `The field is required!`;
       } else {
@@ -67,13 +90,6 @@ export default {
             break;
         }
       }
-
-      // emit data
-      this.$emit("input", {
-        value: event.target.value,
-        errorMessage: !!this.errorMessage,
-        name: this.id,
-      });
     },
   },
 };
@@ -100,15 +116,19 @@ export default {
     outline: 3px solid transparent;
     transition: all 0.2s ease;
 
-    &.error {
-      box-shadow: 0 0 4px #f4b6c1;
-      border: 1px solid #aa4651;
-    }
-
     &:focus {
       outline: 3px solid #c2d9fb;
       box-shadow: unset;
       border: 1px solid transparent;
+    }
+
+    &.error {
+      box-shadow: 0 0 4px #f4b6c1;
+      border: 1px solid #aa4651;
+
+      &:focus {
+        outline: 3px solid #f4b6c1;
+      }
     }
   }
 
