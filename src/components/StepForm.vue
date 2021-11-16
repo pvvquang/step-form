@@ -22,7 +22,7 @@
           id="name"
           :value="user.name"
           @input="handleInputChange"
-          :isValid="isValid"
+          :validFeild="validFeild"
           >Full Name</custom-input
         >
         <custom-input
@@ -30,7 +30,7 @@
           id="email"
           :value="user.email"
           @input="handleInputChange"
-          :isValid="isValid"
+          :validFeild="validFeild"
           >Your Email</custom-input
         >
       </div>
@@ -40,7 +40,7 @@
           id="company"
           :value="user.company"
           @input="handleInputChange"
-          :isValid="isValid"
+          :validFeild="validFeild"
           >Your Company Name</custom-input
         >
         <custom-input
@@ -49,11 +49,12 @@
           id="employees"
           :value="user.employees"
           @input="handleInputChange"
+          :validFeild="validFeild"
           >Number of Employees</custom-input
         >
       </div>
       <div class="form-step__group" v-if="formActive === 3">
-        <Select :selected="selectedAbout">
+        <Select :selected="user.selected" :validFeild="validFeild">
           From Where did you hear about us
           <Option
             slot="option"
@@ -66,6 +67,7 @@
         <div class="check-term">
           <input type="checkbox" id="check-term" @input="handleCheckTerm" />
           <label for="check-term">I accept terms & conditions</label>
+          <p class="check-term__error">{{ checkTermMessage }}</p>
         </div>
       </div>
     </div>
@@ -117,7 +119,7 @@ export default {
       ],
       formActive: 1,
       errorMessage: null,
-      isValid: null,
+      validFeild: null,
       user: {
         name: "",
         email: "",
@@ -127,7 +129,7 @@ export default {
         acceptTerm: false,
       },
       listSelect: ["Friend", "Facebook", "Website"],
-      selectedAbout: "",
+      checkTermMessage: "",
     };
   },
   components: {
@@ -157,17 +159,21 @@ export default {
             if (!this.errorMessage) {
               this.steps[this.formActive - 1].validated = true;
               this.formActive = this.formActive + 1;
-              this.isValid = true;
-              console.log("isvalid:", this.isValid);
+              this.validFeild = true;
             }
           } else {
-            this.isValid = false;
+            this.validFeild = false;
           }
           break;
         case 2:
-          if (this.user.company && this.user.employees && !this.errorMessage) {
-            this.steps[this.formActive - 1].validated = true;
-            this.formActive = this.formActive + 1;
+          if (this.user.company && this.user.employees) {
+            if (!this.errorMessage) {
+              this.steps[this.formActive - 1].validated = true;
+              this.formActive = this.formActive + 1;
+              this.validFeild = true;
+            }
+          } else {
+            this.validFeild = false;
           }
           break;
       }
@@ -184,10 +190,22 @@ export default {
       this.steps.forEach((step) => (step.validated = false));
       this.formActive = 1;
       this.selected = "";
+      this.validFeild = null;
     },
 
     handleSubmit() {
-      console.log(this.user);
+      if (!this.user.acceptTerm) {
+        this.checkTermMessage = "The field is required!";
+        if (!this.user.selected) {
+          this.validFeild = false;
+        }
+      } else {
+        if (!this.user.selected) {
+          this.validFeild = false;
+        } else {
+          console.log({ userData: this.user });
+        }
+      }
     },
 
     handleInputChange(event) {
@@ -212,12 +230,16 @@ export default {
     },
 
     handleSelected(value) {
-      this.selectedAbout = value;
       this.user.selected = value;
     },
 
     handleCheckTerm(event) {
       this.user.acceptTerm = event.target.checked;
+
+      if (this.user.acceptTerm && this.checkTermMessage) {
+        this.checkTermMessage = "";
+      }
+
       if (
         this.user.acceptTerm &&
         this.user.name &&
@@ -261,12 +283,16 @@ export default {
 
   .check-term {
     text-align: left;
-    display: flex;
-    align-items: center;
     padding-top: 20px;
 
     label {
       margin-left: 6px;
+    }
+
+    &__error {
+      color: #aa4651;
+      font-size: 12px;
+      margin-top: 8px;
     }
   }
 }

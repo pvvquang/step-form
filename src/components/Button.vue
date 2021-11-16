@@ -21,6 +21,13 @@ export default {
   padding: 8px 24px;
   border-radius: 12px;
   cursor: pointer;
+  box-shadow: 1px 1px 10px rgba($color: #000, $alpha: 0.4);
+  transition: box-shadow 0.35s ease-out;
+
+  &:hover {
+    box-shadow: 1px 1px 10px rgba($color: #000, $alpha: 0.4),
+      6px 6px 12px rgba(0, 0, 0, 0.2);
+  }
 
   & + & {
     margin-left: 16px;

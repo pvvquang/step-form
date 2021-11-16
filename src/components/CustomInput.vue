@@ -11,13 +11,13 @@
       :placeholder="placeholder"
       :class="{ error: isError }"
     />
-    <p class="message" v-if="isError">{{ errorMessage }}</p>
+    <p class="message">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["type", "id", "typeCustom", "placeholder", "isValid", "value"],
+  props: ["type", "id", "typeCustom", "placeholder", "validFeild", "value"],
   data() {
     return {
       errorMessage: "",
@@ -28,17 +28,13 @@ export default {
     isError() {
       return this.errorMessage.length !== 0 ? true : false;
     },
-    isValided() {
-      return this.isValid;
-    },
   },
   watch: {
     value(newVal) {
       this.inputValue = newVal;
     },
-    isValid() {
-      console.log("watch", this.isValided, this.isValid);
-      if (!this.isValided) {
+    validFeild() {
+      if (!this.validFeild) {
         if (!this.inputValue) {
           this.handleValid();
         }
@@ -47,8 +43,6 @@ export default {
   },
   methods: {
     handleInputChange(event) {
-      console.log(this.isValid);
-      // Validated
       const value = event.target.value;
 
       this.handleValid(value);
