@@ -1,6 +1,6 @@
 <template>
   <div class="form-step">
-    <progress-bar :step="formActive" />
+    <progress-bar :step="formActive" :max="steps.length"/>
     <div class="form-step__wrap">
       <div class="form-step__title">
         <form-title
