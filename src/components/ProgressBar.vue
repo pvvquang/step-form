@@ -6,10 +6,10 @@
 
 <script>
 export default {
-  props: ["step"],
+  props: ["step","max"],
   computed: {
     width() {
-      return Math.ceil((+this.step / 3) * 100);
+      return Math.ceil((+this.step / this.max) * 100);
     },
   },
 };
